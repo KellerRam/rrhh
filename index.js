@@ -4,9 +4,17 @@ const app = express();
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const cors = require('cors'); // ← Agregar esta línea
 
 // Cargar variables de entorno
 dotenv.config();
+
+// Configurar CORS - AGREGAR ESTO
+app.use(cors({
+  origin: 'http://localhost:3000', // URL de tu frontend React
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
 // Middlewares
 app.use(express.json());
