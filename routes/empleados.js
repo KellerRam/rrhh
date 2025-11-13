@@ -23,6 +23,27 @@ router.get("/conteo", (req, res) => {
         return res.status(200).json({ total });
     });
 });
+// Empleados con sucursal (debe ir antes de /:id)
+router.get("/empleadosucursal", (req, res) => {
+    const sql = `
+        SELECT 
+            e.*,
+            s.nombre as nombre_sucursal
+        FROM empleado e 
+        INNER JOIN sucursal s ON e.idsucursal = s.idsucursal
+        ORDER BY s.nombre, e.apellidos, e.nombres
+    `;
+    
+    connection.query(sql, (error, rows) => {
+        if (error) {
+            console.error('Error:', error);
+            return res.status(500).json({ error: 'Error en el servidor' });
+        }
+        
+        console.log(`API - Empleados con sucursal: ${rows.length}`);
+        return res.status(200).json(rows);
+    });
+});
 
 // Devolver todos los empleados
 router.get("/", (req, res) => {
@@ -149,34 +170,6 @@ router.put("/comision/:id", (req, res) => {
                 });
             }
         });
-    });
-});
-
-// Devolver todos los empleados con nombre de sucursal
-router.get("/empleadosucursal", (req, res) => {
-    const query = req.query || {};
-    console.log("Entrando a /api/empleado/empleadosucursal", query);
-
-    let sql = `SELECT e.*, s.nombre AS sucursal FROM empleado e LEFT JOIN sucursal s ON e.idsucursal = s.idsucursal`;
-    const params = [];
-    
-    if (query.id) {
-        sql += ' WHERE e.idsucursal = ?';
-        params.push(query.id);
-        console.log(`Buscando empleados de sucursal ID: ${query.id}`);
-    }
-
-    console.log('SQL:', sql);
-    console.log('Params:', params);
-
-    connection.query(sql, params, (error, rows) => {
-        if (error) {
-            console.error('Error consultando empleados por sucursal:', error);
-            return res.status(500).json({ error: 'Error en el servidor' });
-        }
-        
-        console.log(`Empleados encontrados: ${rows.length}`);
-        return res.status(200).json(rows);
     });
 });
 
